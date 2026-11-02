@@ -40,7 +40,10 @@ function detectAnomalies(daily, window = 7, threshold = 2.5) {
 
 function buildInsights(daily, forecast, anomalyResult) {
   const historicalAverage = daily.length ? daily.reduce((sum, point) => sum + point.sales, 0) / daily.length : 0;
-  const forecastAverage = forecast.length ? forecast.reduce((sum, point) => sum + point.value, 0) / forecast.length : 0;
+  const forecastPoints = Array.isArray(forecast) ? forecast : forecast?.forecast || [];
+  const forecastAverage = forecastPoints.length
+    ? forecastPoints.reduce((sum, point) => sum + point.value, 0) / forecastPoints.length
+    : 0;
   const forecastChange = historicalAverage ? ((forecastAverage - historicalAverage) / historicalAverage) * 100 : 0;
   const alerts = [];
   const recommendations = [];
@@ -64,7 +67,7 @@ function buildInsights(daily, forecast, anomalyResult) {
     recommendations.push('Use the forecast as a planning baseline and monitor actual sales as new data becomes available.');
   }
 
-  const mape = forecast.metrics?.mape;
+  const mape = Array.isArray(forecast) ? undefined : forecast?.metrics?.mape;
   const accuracy = mape == null ? 'unavailable' : mape < 10 ? 'strong' : mape < 20 ? 'moderate' : 'limited';
   return {
     forecastChange: round(forecastChange),

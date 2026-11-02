@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import UploadPanel from './components/UploadPanel.jsx';
 import StatsCards from './components/StatsCards.jsx';
 import ControlsPanel from './components/ControlsPanel.jsx';
@@ -31,12 +31,16 @@ export default function App() {
   const [comparison, setComparison] = useState(null);
   const [insights, setInsights] = useState(null);
   const [comparisonLoading, setComparisonLoading] = useState(false);
+  const refreshVersion = useRef(0);
 
   const loadEverything = useCallback(async (currentParams) => {
+    const requestVersion = ++refreshVersion.current;
+    const isCurrentRequest = () => requestVersion === refreshVersion.current;
     setLoading(true);
     setError(null);
     try {
       const metaData = await getMeta();
+      if (!isCurrentRequest()) return;
       setMeta(metaData);
 
       const filterParams = {
@@ -51,19 +55,28 @@ export default function App() {
         getAnomalies(filterParams),
         getInsights({ ...currentParams, ...filterParams }),
       ]);
+      if (!isCurrentRequest()) return;
       setStats(statsData);
       setForecastResult(forecastData);
       setAnomalies(anomalyData);
       setInsights(insightData);
       setComparisonLoading(true);
       compareForecasts({ ...currentParams, ...filterParams })
-        .then(setComparison)
-        .catch(() => setComparison(null))
-        .finally(() => setComparisonLoading(false));
+        .then((result) => {
+          if (isCurrentRequest()) setComparison(result);
+        })
+        .catch(() => {
+          if (isCurrentRequest()) setComparison(null);
+        })
+        .finally(() => {
+          if (isCurrentRequest()) setComparisonLoading(false);
+        });
     } catch (err) {
-      setError(err.response?.data?.error || 'Something went wrong talking to the API.');
+      if (isCurrentRequest()) {
+        setError(err.response?.data?.error || 'Something went wrong talking to the API.');
+      }
     } finally {
-      setLoading(false);
+      if (isCurrentRequest()) setLoading(false);
     }
   }, []);
 
@@ -77,16 +90,11 @@ export default function App() {
     loadEverything(newParams);
   };
 
-  const handleDatasetChange = (result) => {
+  const handleDatasetChange = async (result) => {
     const freshParams = { ...DEFAULT_PARAMS };
     setParams(freshParams);
-    setMeta({
-      sourceName: result.sourceName,
-      rowCount: result.rowCount,
-      categories: result.categories,
-      regions: result.regions,
-    });
-    loadEverything(freshParams);
+    setMeta(result);
+    await loadEverything(freshParams);
   };
 
   return (

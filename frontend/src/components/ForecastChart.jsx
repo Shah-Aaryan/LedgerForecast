@@ -11,10 +11,10 @@ import {
   ReferenceLine,
 } from 'recharts';
 
-const INK = '#1c2b39';
-const INK_FAINT = '#8b9aa6';
-const ACTUAL = '#2b6ca3';
-const FORECAST = '#b5651d';
+const INK = '#183b63';
+const INK_FAINT = '#94a3b8';
+const ACTUAL = '#2563a6';
+const FORECAST = '#e8833a';
 
 function formatDateShort(d) {
   const dt = new Date(d);
@@ -73,17 +73,17 @@ export default function ForecastChart({ historical, forecast, windowDays = 120 }
       </div>
       <ResponsiveContainer width="100%" height={340}>
         <ComposedChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-          <CartesianGrid stroke="#ddd6c4" vertical={false} />
+          <CartesianGrid stroke="#e8eef5" vertical={false} />
           <XAxis
             dataKey="date"
             tickFormatter={formatDateShort}
-            tick={{ fontFamily: 'IBM Plex Mono', fontSize: 11, fill: INK_FAINT }}
+            tick={{ fontFamily: 'DM Sans', fontSize: 11, fill: INK_FAINT }}
             minTickGap={40}
-            axisLine={{ stroke: '#c9c0a8' }}
+            axisLine={{ stroke: '#dbe4ee' }}
             tickLine={false}
           />
           <YAxis
-            tick={{ fontFamily: 'IBM Plex Mono', fontSize: 11, fill: INK_FAINT }}
+            tick={{ fontFamily: 'DM Sans', fontSize: 11, fill: INK_FAINT }}
             tickFormatter={(v) => `$${Math.round(v / 100) / 10}k`}
             axisLine={false}
             tickLine={false}
@@ -91,11 +91,12 @@ export default function ForecastChart({ historical, forecast, windowDays = 120 }
           />
           <Tooltip
             contentStyle={{
-              fontFamily: 'IBM Plex Mono',
+              fontFamily: 'DM Sans',
               fontSize: 12,
-              border: '1px solid #1c2b39',
-              borderRadius: 3,
-              background: '#fbf9f4',
+              border: '1px solid #dbe4ee',
+              borderRadius: 8,
+              background: '#ffffff',
+              boxShadow: '0 8px 24px rgba(15, 23, 42, 0.1)',
             }}
             labelFormatter={(d) => formatDateShort(d)}
             formatter={(value, name) => {
@@ -108,7 +109,7 @@ export default function ForecastChart({ historical, forecast, windowDays = 120 }
               x={todayDate}
               stroke={INK}
               strokeDasharray="3 3"
-              label={{ value: 'TODAY', position: 'insideTopRight', fontSize: 10, fill: INK, fontFamily: 'IBM Plex Mono' }}
+              label={{ value: 'TODAY', position: 'insideTopRight', fontSize: 10, fill: INK, fontFamily: 'DM Sans' }}
             />
           )}
           {hasConfidenceInterval && (

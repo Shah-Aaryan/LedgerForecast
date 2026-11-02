@@ -13,7 +13,7 @@ export default function UploadPanel({ meta, onDatasetChange }) {
     setError(null);
     try {
       const result = await uploadCsv(file);
-      onDatasetChange(result);
+      await onDatasetChange(result);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to process CSV file.');
     } finally {
@@ -27,7 +27,7 @@ export default function UploadPanel({ meta, onDatasetChange }) {
     setError(null);
     try {
       const result = await loadSample();
-      onDatasetChange(result);
+      await onDatasetChange(result);
     } catch (err) {
       setError('Failed to load sample dataset.');
     } finally {

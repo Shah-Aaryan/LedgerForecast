@@ -78,12 +78,14 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
     const csvText = req.file.buffer.toString('utf-8');
     const parsed = processCsv(csvText);
     currentDataset = { ...parsed, sourceName: req.file.originalname };
+    const daily = aggregateDaily(currentDataset.rows);
     res.json({
       message: 'File uploaded and processed successfully',
       sourceName: currentDataset.sourceName,
       rowCount: currentDataset.rows.length,
       categories: currentDataset.categories,
       regions: currentDataset.regions,
+      dateRange: daily.length ? { start: daily[0].date, end: daily[daily.length - 1].date } : null,
       detectedColumns: currentDataset.detectedColumns,
     });
   } catch (err) {
