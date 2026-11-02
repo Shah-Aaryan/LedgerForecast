@@ -9,7 +9,7 @@ const METHOD_OPTIONS = [
   { value: 'linear_regression', label: 'Linear regression' },
 ];
 
-export default function ControlsPanel({ params, onChange, categories, regions }) {
+export default function ControlsPanel({ params, onChange, categories, regions, dateRange }) {
   const update = (key, value) => onChange({ ...params, [key]: value });
 
   return (
@@ -36,6 +36,16 @@ export default function ControlsPanel({ params, onChange, categories, regions })
             value={params.horizon}
             onChange={(e) => update('horizon', Number(e.target.value))}
           />
+        </div>
+
+        <div className="field">
+          <label>History starts</label>
+          <input type="date" min={dateRange?.start} max={params.endDate || dateRange?.end} value={params.startDate || dateRange?.start || ''} onChange={(e) => update('startDate', e.target.value)} />
+        </div>
+
+        <div className="field">
+          <label>History ends</label>
+          <input type="date" min={params.startDate || dateRange?.start} max={dateRange?.end} value={params.endDate || dateRange?.end || ''} onChange={(e) => update('endDate', e.target.value)} />
         </div>
 
         {params.method === 'holt_winters' && (

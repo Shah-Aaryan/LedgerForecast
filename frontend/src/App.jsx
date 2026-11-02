@@ -4,7 +4,11 @@ import StatsCards from './components/StatsCards.jsx';
 import ControlsPanel from './components/ControlsPanel.jsx';
 import ForecastChart from './components/ForecastChart.jsx';
 import LedgerTable from './components/LedgerTable.jsx';
-import { getMeta, getStats, runForecast } from './api';
+import AboutPanel from './components/AboutPanel.jsx';
+import AnomalyPanel from './components/AnomalyPanel.jsx';
+import ModelComparison from './components/ModelComparison.jsx';
+import InsightsPanel from './components/InsightsPanel.jsx';
+import { getMeta, getStats, getAnomalies, runForecast, compareForecasts, getInsights } from './api';
 
 const DEFAULT_PARAMS = {
   method: 'holt_winters',
@@ -12,6 +16,8 @@ const DEFAULT_PARAMS = {
   seasonLength: 7,
   category: 'All',
   region: 'All',
+  startDate: '',
+  endDate: '',
 };
 
 export default function App() {
@@ -21,6 +27,10 @@ export default function App() {
   const [params, setParams] = useState(DEFAULT_PARAMS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [anomalies, setAnomalies] = useState(null);
+  const [comparison, setComparison] = useState(null);
+  const [insights, setInsights] = useState(null);
+  const [comparisonLoading, setComparisonLoading] = useState(false);
 
   const loadEverything = useCallback(async (currentParams) => {
     setLoading(true);
@@ -32,12 +42,24 @@ export default function App() {
       const filterParams = {
         category: currentParams.category !== 'All' ? currentParams.category : undefined,
         region: currentParams.region !== 'All' ? currentParams.region : undefined,
+        startDate: currentParams.startDate || undefined,
+        endDate: currentParams.endDate || undefined,
       };
-      const statsData = await getStats(filterParams);
+      const [statsData, forecastData, anomalyData, insightData] = await Promise.all([
+        getStats(filterParams),
+        runForecast({ ...currentParams, ...filterParams }),
+        getAnomalies(filterParams),
+        getInsights({ ...currentParams, ...filterParams }),
+      ]);
       setStats(statsData);
-
-      const forecastData = await runForecast({ ...currentParams, ...filterParams });
       setForecastResult(forecastData);
+      setAnomalies(anomalyData);
+      setInsights(insightData);
+      setComparisonLoading(true);
+      compareForecasts({ ...currentParams, ...filterParams })
+        .then(setComparison)
+        .catch(() => setComparison(null))
+        .finally(() => setComparisonLoading(false));
     } catch (err) {
       setError(err.response?.data?.error || 'Something went wrong talking to the API.');
     } finally {
@@ -90,6 +112,7 @@ export default function App() {
       </header>
 
       <UploadPanel meta={meta} onDatasetChange={handleDatasetChange} />
+      <AboutPanel />
 
       {error && <div className="error-banner" style={{ marginBottom: 20 }}>{error}</div>}
 
@@ -100,6 +123,7 @@ export default function App() {
         onChange={handleParamsChange}
         categories={meta?.categories}
         regions={meta?.regions}
+        dateRange={meta?.dateRange}
       />
 
       <div className="panel">
@@ -115,6 +139,9 @@ export default function App() {
         <LedgerTable forecast={forecastResult.forecast} metrics={forecastResult.metrics} modelInfo={forecastResult.modelInfo} />
       )}
 
+      <AnomalyPanel result={anomalies} />
+      <ModelComparison result={comparison} loading={comparisonLoading} />
+      <InsightsPanel insights={insights} />
     </div>
   );
 }

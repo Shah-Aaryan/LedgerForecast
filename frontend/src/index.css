@@ -281,12 +281,108 @@ button, select, input {
   min-width: 150px;
 }
 
+.field input[type=date] {
+  padding: 8px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 13.5px;
+  min-width: 150px;
+}
+
 .field-note {
   font-family: var(--mono-font);
   font-size: 11px;
   color: var(--ink-faint);
   max-width: 220px;
 }
+
+.about-panel h2 {
+  font-family: var(--display-font);
+  margin: 0 0 8px;
+  font-size: 22px;
+}
+
+.about-panel p:not(.panel-label), .section-intro, .status-message {
+  color: var(--ink-soft);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.status-message {
+  font-family: var(--mono-font);
+  font-size: 12px;
+}
+
+.positive-text { color: var(--positive) !important; }
+
+.anomaly-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.anomaly-item, .alert-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--negative);
+  background: rgba(166, 61, 64, 0.06);
+  font-family: var(--mono-font);
+  font-size: 11px;
+}
+
+.anomaly-item.spike { border-color: var(--positive); background: rgba(62, 124, 89, 0.07); }
+.anomaly-item small, .alert-card span { color: var(--ink-faint); }
+
+.comparison-table-wrap { overflow-x: auto; margin-top: 12px; }
+.comparison-table { min-width: 680px; }
+.best-value { color: var(--positive); font-weight: 700; }
+
+.insight-summary {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 18px;
+  font-family: var(--mono-font);
+  color: var(--ink-soft);
+}
+
+.insight-summary strong {
+  color: var(--signal-forecast);
+  font-family: var(--display-font);
+  font-size: 28px;
+}
+
+.insight-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.insight-grid h3 {
+  font-family: var(--display-font);
+  margin: 0 0 10px;
+}
+
+.insight-grid ul {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--ink-soft);
+  line-height: 1.7;
+}
+
+.alert-card {
+  margin-bottom: 8px;
+  border-color: var(--signal-forecast);
+  background: var(--signal-forecast-soft);
+}
+
+.alert-card.high { border-color: var(--negative); background: rgba(166, 61, 64, 0.08); }
+.alert-card.positive { border-color: var(--positive); background: rgba(62, 124, 89, 0.08); }
 
 /* ---------- Chart ---------- */
 .chart-legend {
@@ -376,5 +472,8 @@ button, select, input {
   }
   .masthead-meta {
     text-align: left;
+  }
+  .insight-grid {
+    grid-template-columns: 1fr;
   }
 }
